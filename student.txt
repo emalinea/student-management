@@ -1,0 +1,1 @@
+# spara studenternas information, vanlig text. inga koder. Som en lista
