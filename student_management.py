@@ -55,7 +55,7 @@ def addStudent():
             print(f"Error adding student: {e}")
             break
 
-def display(student, id):
+def display(students, id):
     for student in students:
         if student["id"] == id:
             return student
@@ -72,7 +72,9 @@ def displayStudent():
 def update_student(students, id, updates):
     for student in students:
         if student["id"] == id:
-            student.update(updates)
+            for key, value in updates.items():
+                if key in student:
+                    student[key] = value
             return student
     return None
 
@@ -120,7 +122,17 @@ def load_Students_from_file():
     global students
     try:
         with open('students.json', 'r') as file:
-            students = json.load(file)
+            data = json.load(file)
+            students = [
+                {
+                    "id": int(student["id"]),
+                    "name": student["name"],
+                    "age": int(student["age"]),
+                    "grade": student["grade"],
+                    "subjects": student["subjects"]
+                }
+                for student in data
+            ]
         print("Students loaded from file.")
     except FileNotFoundError:
         print("No saved data found. Starting with an empty list.")
