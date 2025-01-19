@@ -1,100 +1,161 @@
 import json
 
-# enklare jobba med CLASSES, kolla bilden
-# exempel:
-""" class Student:
-    def __init__(self, student_id, name, age, grade, subjects):""" 
-
-
-
-# Global variable to store students
 students = []
 
-# Function to add a new student
-def add_student():
-    student_id = input("Enter student ID: ")
-    name = input("Enter student name: ")
-    age = input("Enter student age: ")
-    student = {"id": student_id, "name": name, "age": age}
+def add(students, id, name, age, grade, subjects):
+    student = {"id": id, "name": name, "age": age, "grade": grade, "subjects": subjects}
     students.append(student)
-    print(f"Student {name} added successfully!")
+    return students
 
-# Function to view all students
-def view_students():
-    if not students:
-        print("No students found.")
-    else:
-        print("\nList of Students:")
-        for student in students:
-            print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}")
-    print()
+def id_unique(students, id):
+    for student in students:
+        if student["id"] == id:
+            return False
+    return True
 
-# Function to update a student's information
-def update_student():
-    student_id = input("Enter the student ID to update: ")
-    student = next((s for s in students if s["id"] == student_id), None)
+def addStudent():
+    while True:
+        try:
+            while True:
+                id = input("Enter id:\n")
+                if not id.isnumeric():
+                    print("ID must be a number. Please try again.")
+                elif not id_unique(students, id):
+                    print(f"ID {id} already exists. Please enter a new one.")
+                else:
+                    break
+            while True:
+                name = input("Enter name:\n")
+                if name.isnumeric():
+                    print("Name can not contain numbers. Please try again.")
+                else:
+                    break
+            while True:
+                age = input("Enter age:\n")
+                if not age.isnumeric():
+                    print("Age must be number. Please try again.")
+                else:
+                    break
+            while True:
+                grade = input("Enter grade:\n")
+                if grade.isnumeric():
+                    print("Grade can not be a number. Please try again.")
+                else:
+                    break
+            while True:
+                subjects = input("Enter subjects:\n")
+                if subjects.isnumeric():
+                    print("Subjects can not be numbers. Please try again.")
+                else:
+                    break
+            add(students, id, name, age, grade, subjects)
+            print("Student added successfully. Please insert your choice.")
+            break
+        except Exception as e:
+            print(f"Error adding student: {e}")
+            break
+
+def display(student, id):
+    for student in students:
+        if student["id"] == id:
+            return student
+    return None
+
+def displayStudent():
+    id = input("Enter the ID to view student:\n")
+    student = display(student, id)
     if student:
-        print(f"Updating student {student['name']} (ID: {student['id']})")
-        student['name'] = input("Enter new name: ")
-        student['age'] = input("Enter new age: ")
-        print("Student information updated.")
+        print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}, Grade: {student['grade']}, Subjects: {student['subjects']}")
     else:
-        print("Student not found.")
+        print("Student not found")
 
-# Function to delete a student
-def delete_student():
-    student_id = input("Enter the student ID to delete: ")
+def update_student(students, id, updates):
+    for student in students:
+        if student["id"] == id:
+            student.update(updates)
+            return student
+    return None
+
+def updateStudent():
+    id = input("Enter id to update:\n")
+    student = display(students, id)
+    if student:
+        print(f"Updating student: {student['name']}")
+        new_name = input(f"Enter new name to update (leave blank to keep) '{student['name']}'):\n") or student["name"]
+        new_age = input(f"Enter new age to update (leave blank to keep '{student['age']}'):\n") or student["age"]
+        new_grade = input(f"Enter new grade to update (leave blank to keep '{student['grade']}':\n") or student["grade"]
+        new_subjects = input(f"Enter new subjects to update (leave blank to keep '{student['subjects']}'):\n") or student["subjects"]
+        updates = {
+            "name": new_name,
+            "age": new_age,
+            "grade": new_grade,
+            "subjects": new_subjects,
+        }             
+        update_student(students, id, updates)
+        print("Student's information is now updated.")
+    else:
+        print("Student not found.") 
+
+def delete_student(id):
     global students
-    students = [s for s in students if s["id"] != student_id]
-    print(f"Student with ID {student_id} has been deleted.")
+    students = [s for s in students if s["id"] != id]
 
-# Function to save students to a file
-def save_students():
-    with open('students.json', 'w') as file:
-        json.dump(students, file)
-    print("Students have been saved.")
+def deleteStudent():
+    id = input("Enter the id to delete:\n")
+    if display(students, id):
+        delete_student(id)
+        print(f"Student with ID {id} was deleted.")
+    else:
+        print("Student not found. Please try again.")
 
-# Function to load students from a file
-def load_students():
+def save_Students_to_file():
+    try:
+        with open('students.json', 'w') as file:
+            json.dump(students, file, indent=4)
+        print("Students saved to file.")
+    except Exception as e:
+        print(f"Error saving student: {e}")
+
+def load_Students_from_file():
     global students
     try:
         with open('students.json', 'r') as file:
             students = json.load(file)
+        print("Students loaded from file.")
     except FileNotFoundError:
-        students = []
-    print("Student data loaded.")
+        print("No saved data found. Starting with an empty list.")
+    except Exception as e:
+        print(f"Error loading students: {e}")
 
-# Function to display the menu
-def show_menu():
-    print("\nMenu:")
-    print("1. Add a new student")
-    print("2. View all students")
-    print("3. Update a student's information")
-    print("4. Delete a student")
-    print("5. Save and exit")
-
-# Main function
 def main():
-    load_students()  # Load student data when the program starts
-
+    load_Students_from_file()
     while True:
-        show_menu()
-        choice = input("Choose an option (1/2/3/4/5): ")
-
-        if choice == '1':
-            add_student()
-        elif choice == '2':
-            view_students()
-        elif choice == '3':
-            update_student()
-        elif choice == '4':
-            delete_student()
-        elif choice == '5':
-            save_students()  # Save the students before exiting
-            print("Exiting the program.")
-            break  # Exit the loop
-        else:
-            print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
+        try:
+            choice = int(input("""
+            1. Add a new student
+            2. View all students
+            3. Update a student's information
+            4. Delete a student's information
+            5. Save and exit\n                                                                                        
+        """)) 
+            if (choice == 1):
+                addStudent()
+            elif (choice == 2):
+                for student in students:
+                    print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}, Grade: {student['grade']}, Subjects: {student['subjects']}")
+            elif (choice == 3):
+                updateStudent()
+            elif (choice == 4):
+                deleteStudent()
+            elif (choice == 5):
+                save_Students_to_file()
+                break
+            else:
+                print("Invalid choice. Try again.")
+        except ValueError:
+            print("Please enter a valid number.")
 
 if __name__ == "__main__":
-    main()
+    main()                                                           
+
+
