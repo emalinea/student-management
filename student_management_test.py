@@ -36,11 +36,23 @@ class StudentManagementTest(unittest.TestCase):
 
 
     def test_delete_student(self):
-        students = [
+        student_management.students = [
             { "id": 1, "name": "Olle", "age": 20, "grade": "VG", "subjects": "Math" }
         ]
-        student_management.delete_student("1")
-        self.assertEqual(len(students), 1)
+        
+        student_management.students = student_management.delete_student(student_management.students, 1)
+        
+        remaining_ids = [s["id"] for s in student_management.students]
+        self.assertNotIn(1, remaining_ids)
+        self.assertEqual(len(student_management.students), 0)
+        
+        student_management.save_Students_to_file(self.test_filename)
+        
+        with open(self.test_filename, 'r') as f:
+            saved_data = json.load(f)
+            print("Saved data:", saved_data)
+
+        self.assertEqual(saved_data, [])
 
 
     def setUp(self):
@@ -59,7 +71,7 @@ class StudentManagementTest(unittest.TestCase):
     def test_save_Students_to_file(self):
         student_management.students = []
         student_management.add(student_management.students, 1, "Olle", 20, "VG", "Math")
-        student_management.save_Students_to_file()
+        student_management.save_Students_to_file(self.test_filename)
        
         with open(self.test_filename, 'r') as f:
             saved_data = json.load(f)
@@ -68,8 +80,10 @@ class StudentManagementTest(unittest.TestCase):
 
 
     def test_load_Students_from_file(self):
+        with open(self.test_filename, 'w') as f:
+            json.dump(self.test_data, f, indent=4)
         student_management.students = []
-        student_management.load_Students_from_file()
+        student_management.load_Students_from_file(self.test_filename)
         self.assertEqual(student_management.students, self.test_data)        
 
 
