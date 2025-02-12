@@ -57,13 +57,13 @@ def addStudent():
 
 def display(students, id):
     for student in students:
-        if student["id"] == id:
+        if student["id"] == int(id):
             return student
     return None
 
 def displayStudent():
     id = input("Enter the ID to view student:\n")
-    student = display(student, id)
+    student = display(students, id)
     if student:
         print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}, Grade: {student['grade']}, Subjects: {student['subjects']}")
     else:
@@ -71,7 +71,7 @@ def displayStudent():
 
 def update_student(students, id, updates):
     for student in students:
-        if student["id"] == id:
+        if student["id"] == int(id):
             for key, value in updates.items():
                 if key in student:
                     student[key] = value
@@ -98,31 +98,31 @@ def updateStudent():
     else:
         print("Student not found.") 
 
-def delete_student(id):
-    global students
-    students = [s for s in students if s["id"] != id]
+def delete_student(students, student_id):
+    return [s for s in students if s["id"] != int(student_id)]
 
 def deleteStudent():
+    global students
     id = input("Enter the id to delete:\n")
     if display(students, id):
-        delete_student(id)
+        students = delete_student(students, id)
+        save_Students_to_file()
         print(f"Student with ID {id} was deleted.")
     else:
         print("Student not found. Please try again.")
 
-def save_Students_to_file():
+def save_Students_to_file(filename='students.json'):
     try:
-        with open('students.json', 'w') as file:
+        with open(filename, 'w') as file:
             json.dump(students, file, indent=4)
-        print("Students saved to file.")
     except Exception as e:
         print(f"Error saving student: {e}")
 
-def load_Students_from_file():
+def load_Students_from_file(filename='students.json'):
     global students
     try:
-        with open('students.json', 'r') as file:
-            data = json.load(file)
+        with open(filename, 'r') as file:
+            students = json.load(file)
             students = [
                 {
                     "id": int(student["id"]),
@@ -131,7 +131,7 @@ def load_Students_from_file():
                     "grade": student["grade"],
                     "subjects": student["subjects"]
                 }
-                for student in data
+                for student in students
             ]
         print("Students loaded from file.")
     except FileNotFoundError:
@@ -153,14 +153,18 @@ def main():
             if (choice == 1):
                 addStudent()
             elif (choice == 2):
-                for student in students:
-                    print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}, Grade: {student['grade']}, Subjects: {student['subjects']}")
+                if len(students) == 0:
+                    print("No student found. Please try again.")
+                else:    
+                    for student in students:
+                        print(f"ID: {student['id']}, Name: {student['name']}, Age: {student['age']}, Grade: {student['grade']}, Subjects: {student['subjects']}")
             elif (choice == 3):
                 updateStudent()
             elif (choice == 4):
                 deleteStudent()
             elif (choice == 5):
                 save_Students_to_file()
+                print("File has been updated.") 
                 break
             else:
                 print("Invalid choice. Try again.")
